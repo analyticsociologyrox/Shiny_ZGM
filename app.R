@@ -133,10 +133,6 @@ server <- function(input, output) {
   
   output$plot <- renderPlot({
     gg <- ggplot() +
-      geom_vline(data = distribution_data(),
-                 mapping = aes(xintercept = mean(x),
-                               color = "Populationsmittelwert"),
-                 show.legend = TRUE) +
       geom_density(
         data = distribution_data(),
         mapping = aes(x = x,
@@ -145,13 +141,8 @@ server <- function(input, output) {
       ) +
       theme_bw()
     
-    if (input$show_sample) {
-      gg <- gg +
-        geom_vline(data = means_data(),
-                   mapping = aes(xintercept = mean(x),
-                                 color = "Stichprobenmittelwert"),
-                   show.legend = TRUE)
     
+    if (input$show_sample) {
       if (input$n_stichproben > 1) {
         gg <- gg +
           geom_density(
@@ -161,16 +152,29 @@ server <- function(input, output) {
             alpha = 0.5
           )
       }
-        gg <- gg +
-          scale_color_manual(
-            values = c("Populationsmittelwert" = "darkblue",
-                       "Stichprobenmittelwert" = "darkgreen")
-          ) +
-          scale_fill_manual(
-            values = c("Populationsverteilung" = "lightblue",
-                       "Stichprobenverteilung" = "lightgreen")
+      
+      gg <- gg +
+        geom_vline(
+          data = means_data(),
+          mapping = aes(xintercept = mean(x),
+                        color = "Stichprobenmittelwert"),
+          show.legend = TRUE
+        )
+      
+      gg <- gg +
+        scale_color_manual(
+          values = c(
+            "Populationsmittelwert" = "darkblue",
+            "Stichprobenmittelwert" = "darkgreen"
           )
-    
+        ) +
+        scale_fill_manual(
+          values = c(
+            "Populationsverteilung" = "lightblue",
+            "Stichprobenverteilung" = "lightgreen"
+          )
+        )
+      
     } else {
       gg <- gg +
         scale_color_manual(
@@ -182,6 +186,10 @@ server <- function(input, output) {
     }
     
     gg <- gg +
+      geom_vline(data = distribution_data(),
+                 mapping = aes(xintercept = mean(x),
+                               color = "Populationsmittelwert"),
+                 show.legend = TRUE) +
       labs(color = "",
            fill = "",
            x = "metrisches Merkmal",
